@@ -27,13 +27,13 @@ export const Form = () => {
       phone,
     };
     if (contacts.find(item => item.name.toLowerCase() === name.toLowerCase())) {
-      // alert(`Contact ${name} is already exist`);
+      alert(`Contact ${name} is already exist`);
       toast.error(`Contact ${name} is already exist`);
       reset();
       return;
     }
     addContact(contact);
-    // alert(`Contact ${name} has been added`);
+    alert(`Contact ${name} has been added`);
     toast.success(`Contact ${name} has been added`);
     reset();
   };
