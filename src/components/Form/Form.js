@@ -1,44 +1,45 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContacts } from 'redux/dataSlice';
+import {
+  useGetContactsQuery,
+  useAddContactMutation,
+} from 'services/contactsApi';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Form = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const contacts = useSelector(state => state.contacts.items);
+  const [phone, setPhone] = useState('');
+
+  const contacts = useGetContactsQuery().data;
+  const [addContact] = useAddContactMutation();
 
   const onChangeInputName = event => {
     setName(event.currentTarget.value);
   };
   const onChangeInputNumber = event => {
-    setNumber(event.currentTarget.value);
+    setPhone(event.currentTarget.value);
   };
-  const haveDublicats = (contacts, data) => {
-    return contacts.some(contact => contact.name === data.name);
-  };
-  const dispatch = useDispatch();
+
   const onSubmitForm = event => {
-    const id = nanoid(10);
+    event.preventDefault();
     const contact = {
-      id,
       name,
-      number,
+      phone,
     };
-    if (haveDublicats(contacts, contact)) {
-      alert(`${contact.name} is already in contacts`);
-      event.preventDefault();
+    if (contacts.find(item => item.name.toLowerCase() === name.toLowerCase())) {
+      // alert(`Contact ${name} is already exist`);
+      toast.error(`Contact ${name} is already exist`);
       reset();
       return;
-    } else {
-      event.preventDefault();
-      dispatch(addContacts(contact));
-      reset();
     }
+    addContact(contact);
+    // alert(`Contact ${name} has been added`);
+    toast.success(`Contact ${name} has been added`);
+    reset();
   };
   const reset = () => {
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
   return (
@@ -60,7 +61,7 @@ export const Form = () => {
         <input
           type="tel"
           name="number"
-          value={number}
+          value={phone}
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required

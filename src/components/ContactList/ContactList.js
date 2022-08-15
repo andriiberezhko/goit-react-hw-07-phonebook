@@ -1,11 +1,12 @@
 import React from 'react';
 import Contact from 'components/Contact/Contact';
-import { useDispatch, useSelector } from 'react-redux';
-import { removeContacts } from 'redux/dataSlice';
+import { useGetContactsQuery } from 'services/contactsApi';
+import { useSelector } from 'react-redux';
 
 const ContactList = () => {
-  const filter = useSelector(state => state.contacts.filter);
-  const contacts = useSelector(state => state.contacts.items);
+  const contacts = useGetContactsQuery().data;
+
+  const { filter } = useSelector(state => state.filter);
   const filteredContacts = () => {
     const normalizedFilter = filter.toLowerCase();
     const visibleContacts = contacts.filter(contact =>
@@ -13,21 +14,12 @@ const ContactList = () => {
     );
     return visibleContacts;
   };
-
-  const dispatch = useDispatch();
   return (
     <ul>
-      {filteredContacts().map(({ id, name, number }) => {
-        return (
-          <Contact
-            key={id}
-            id={id}
-            name={name}
-            number={number}
-            deleteBtn={() => dispatch(removeContacts(id))}
-          />
-        );
-      })}
+      {contacts &&
+        filteredContacts().map(({ id, name, phone }) => {
+          return <Contact key={id} id={id} name={name} number={phone} />;
+        })}
     </ul>
   );
 };
